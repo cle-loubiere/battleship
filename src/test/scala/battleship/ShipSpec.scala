@@ -53,7 +53,7 @@ class ShipSpec extends FunSuite{
         assert(!(ship.isSunk))
         assert(ship.shoot(1,1).isSunk)
     }
-    test("shoot() test"){
+    test("shoot(int,int) test"){
         val ship = new Ship(List.fill(2)(false),'s',1,1)
         assert(!(ship.isSunk))
         assert(!ship.shoot(1,1).isSunk)
@@ -61,5 +61,20 @@ class ShipSpec extends FunSuite{
         assert(!ship.shoot(1,1).shoot(1,3).isSunk)
         assert(!ship.shoot(1,1).shoot(1,1).isSunk)
     }
-    
+    test("collision(ship) test"){
+        val ship1 = new Ship(List.fill(3)(false),'s',2,1)
+        val ship2 = new Ship(List.fill(3)(false),'e',1,2)
+        
+        val ship3 = new Ship(List.fill(1)(false),'s',1,1)
+        val ship4 = new Ship(List.fill(1)(false),'s',2,2)
+        assert(ship1.collision(ship1))
+        assert(ship1.collision(ship2))
+        assert(!(ship1.collision(ship3)))
+        assert((ship1.collision(ship4)))
+        assert(!(ship2.collision(ship3)))
+        assert((ship2.collision(ship4)))
+        assert(!(ship3.collision(ship4)))
+        assert(ship1.collision(new Ship(List.fill(3)(false),'s',2,3)))
+        assert(ship1.collision(new Ship(List.fill(1)(false),'s',2,2)))
+    }
 }

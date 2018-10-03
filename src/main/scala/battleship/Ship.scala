@@ -20,9 +20,9 @@ case class Ship(val hitList:List[Boolean], orientation:Char, posX:Int, posY:Int 
    
     def isInCoordinate(x: Int, y:Int):Boolean = {
         if(direction == 'e'){
-            return (posX <= x && (posX+length) > x && posY == y)
+             (posX <= x && (posX+length) > x && posY == y)
         }else{
-            return (posY <= y && (posY+length) > y && posX == x)
+             (posY <= y && (posY+length) > y && posX == x)
         }
     }
 
@@ -41,5 +41,27 @@ case class Ship(val hitList:List[Boolean], orientation:Char, posX:Int, posY:Int 
             }
             
         }else this
+    }
+
+    def collision(ship:Ship):Boolean={
+        if(direction == ship.direction){
+            if(direction == 'e'){
+                ((posY == ship.posY)
+                && (((posX <= ship.posX) && (posX+length-1 >= ship.posX))
+                    ||((ship.posX <= posX)&&( ship.posX+ship.length-1 >= posX)))) 
+            }else{
+                ((posX == ship.posX)
+                && (((posY <= ship.posY) && (posY+length-1 >= ship.posY))
+                    ||((ship.posY <= posY)&&( ship.posY+ship.length-1 >= posY))))  
+            }
+        }else {
+            if(direction == 'e'){
+                (((posX <= ship.posX) && (posX+length-1>=ship.posX)) 
+                && ((ship.posY <= posY)&&(ship.posY + ship.length-1>=posY)))
+            }else{
+                (((ship.posX <= posX) && (ship.posX+ship.length-1>=posX)) 
+                && ((posY <= ship.posY)&&(posY + length-1>=ship.posY)))
+            }
+        }
     }
 }
