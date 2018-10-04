@@ -85,4 +85,6 @@ class ShipSpec extends FunSuite{
         assert(ship1.collision(new Ship(List.fill(3)(false),'s',2,3)))
         assert(ship1.collision(new Ship(List.fill(1)(false),'s',2,2)))
     }
+
+    
 }
