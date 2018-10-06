@@ -49,6 +49,17 @@ case class Grid(val grid : List[List[String]]){
     def insertShip(ship:Ship):Grid={
         insertShip(ship,this,0)
     }
+
+    def insertShipList(shipList:List[Ship]):Grid={
+        insertShipList(shipList:List[Ship],this)
+    }
+
+    @tailrec
+    private def insertShipList(shipList:List[Ship],newGrid:Grid, cpt:Int=0):Grid={
+        if(shipList.length == cpt) newGrid
+        else insertShipList(shipList,newGrid.insertShip(shipList(cpt)),cpt+1)
+    }
+
     @tailrec
     private def insertShip(ship:Ship,newGrid:Grid,count:Int):Grid={
         if(count == ship.length) newGrid

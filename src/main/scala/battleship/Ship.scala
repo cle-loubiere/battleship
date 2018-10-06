@@ -131,4 +131,24 @@ case class Ship(val hitList:List[Boolean], orientation:Char, coordinateX:Int, co
             }
         }
     }
+
+    /**
+    *   know if this ship and another one share a coordinate
+    *   
+    *   @param heigth the heigth of a grid
+    *   @param length the length of a grid
+    *   @return true if the ship is out of bounds
+    */
+    def isOutOfBounds(heigth:Int,length:Int):Boolean={
+        if(this.direction == 'e'){
+            if(this.posY > heigth || this.posX + this.length -1 > length || posX < 1 || posY < 1){
+                true
+            }else false
+        }else{
+            if(this.posX > length || this.posY + this.length -1 > heigth || posX < 1 || posY < 1){
+                true
+            }else false
+        }
+
+    }
 }
