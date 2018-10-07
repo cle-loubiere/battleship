@@ -4,21 +4,21 @@ import scala.annotation.tailrec
 class Human extends Player{
     /**
     *   Ask the player for coordinate x,y
-    *   @param gameState a GameState
+    *   @param actionList a ActionList
     *   @return two int x and y
     */
     @tailrec
-    final def  askShootCoordinate(gameState : GameState):(Int,Int)={
+    final def  askShootCoordinate(actionList : ActionList):(Int,Int)={
         println("Type the coordinates of your next shot :\n Coornodinates pattern is 'letterNumber' ex : a1 ")
         val coordinate = scala.io.StdIn.readLine().toUpperCase
         if(validCoordinate(coordinate)){
             (coordinate.slice(1,coordinate.length).toInt, coordinate.charAt(0).toInt - 64)
-        }else askShootCoordinate(gameState)
+        }else askShootCoordinate(actionList)
     }
 
     /**
     *   Ask the player for the ship's data coordinate and direction
-    *   @param gameState a GameState
+    *   @param actionList a ActionList
     *   @return a ship
     */
     @tailrec

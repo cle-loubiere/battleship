@@ -14,9 +14,34 @@ object game extends App{
     def startGame(playerList : List[Player], score : List[Int] = List.fill(2)(0), firstPlayerNumber : Int = 0):Unit={
         //val playersGrid = List.fill(playerList)(new Grid(10,10))
         val playersShips = getPlayersShips(playerList,5)
+        val playerGrid = getPlayersGrid(playersShips)
+        val playersActionList = getPlayersActionGrid(playerList)
 
+        val winnerNumber = playTheGame(playerList, playerGrid, playersShips, playersActionList,firstPlayerNumber)
         //Pseudo code
         // startGame(playerList, NOUVEAUSCORE, firstPlayerNumber+1%playerList.length)
+    }
+
+    @tailrec
+    def playTheGame(playerList : List[Player], playerGridList : List[Grid], playerShipsList : List[List[Ship]], playerActionList : List[ActionList], playerNumber : Int):Int={
+        val playerTurn = playerNumber % playerList.length
+        val nonActivePlayerNumber = (playerNumber +1) % playerList.length
+        val activePlayer = playerList(playerTurn)
+        if(activePlayer.isInstanceOf[Human]){
+            println("your grid : \n" + playerGridList(playerTurn).toStringPrivateInfo())
+            println("your opponent grid" + playerGridList(nonActivePlayerNumber).toStringPublicInfo())
+        }
+        val shootCoordinates = activePlayer.askShootCoordinate(playerActionList(playerTurn))
+        
+        val newShipList = playerShipsList.updated(playerTurn, playerShipsList(playerTurn).map(x => x.shoot(shootCoordinates._2,shootCoordinates._1)))
+        val newGridList = playerGridList.updated(nonActivePlayerNumber, playerGridList(nonActivePlayerNumber).shoot(shootCoordinates._2,shootCoordinates._1))
+        val shotResult =    if(playerShipsList(playerNumber).map(x => x.isShootable(shootCoordinates._2,shootCoordinates._1)).contains(true)) "hit"
+                            else if(playerShipsList(playerNumber).map(x => x.isSunkable(shootCoordinates._2,shootCoordinates._1)).contains(true)) "sunk"
+                            else "miss"
+        val newPlayerActionList = playerActionList.updated(playerTurn, playerActionList(playerNumber).addAction(shootCoordinates._2,shootCoordinates._1,shotResult))
+
+        if(playerShipsList(nonActivePlayerNumber).map(x => x.isSunk).contains(false)) playTheGame(playerList,newGridList,newShipList,newPlayerActionList,playerNumber+1)
+        else playerNumber
     }
 
     @tailrec
@@ -32,6 +57,8 @@ object game extends App{
             chooseGameType
         }
     }
+
+    
 
     @tailrec
     def chooseAIDifficulty():Player={
@@ -89,7 +116,9 @@ object game extends App{
 
 
     def getPlayerShips(player:Player, numberOfShip: Int):List[Ship]={
-        getPlayerShips(player,5,List())
+        val test = getPlayerShips(player,5,List())
+        println("ship successfully taken")
+        test
     }
 
     @tailrec
@@ -110,6 +139,26 @@ object game extends App{
                 getPlayerShips(player, numberOfShip-1, shipList :+ newShip )
             }
         }
+    }
+
+    def getPlayersGrid(playersShipsList : List[List[Ship]]):List[Grid]={
+        getPlayersGrid(playersShipsList, 0)
+    }
+
+    @tailrec
+    def getPlayersGrid(playersShipsList : List[List[Ship]], cpt : Int, gridList:List[Grid]=List()):List[Grid]={
+        if(cpt > playersShipsList.length)gridList
+        else getPlayersGrid(playersShipsList, cpt+1,( gridList:+ (new Grid(10,10).insertShipList(playersShipsList(cpt)))))
+    }
+
+    def getPlayersActionGrid(playerList : List[Player]):List[ActionList]={
+        getPlayersActionGrid(playerList, List())
+    }
+
+    @tailrec
+    def getPlayersActionGrid(playerList : List[Player], actionList : List[ActionList]):List[ActionList]={
+        if(playerList.length == actionList.length) actionList
+        else getPlayersActionGrid(playerList, actionList:+new ActionList)
     }
 }
 

@@ -4,14 +4,14 @@ trait Player{
 
     /**
     *   Ask the player for coordinate x,y
-    *   @param gameState a GameState
+    *   @param actionList a ActionList
     *   @return two int x and y
     */
-    def askShootCoordinate(gameState : GameState):(Int,Int)
+    def askShootCoordinate(actionList : ActionList):(Int,Int)
 
     /**
     *   Ask the player for the ship's data coordinate and direction
-    *   @param gameState a GameState
+    *   @param actionList a ActionList
     *   @return a ship
     */
     def askShip(size:Int):Ship

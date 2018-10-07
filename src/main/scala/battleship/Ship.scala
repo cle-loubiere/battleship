@@ -74,6 +74,17 @@ case class Ship(val hitList:List[Boolean], orientation:Char, coordinateX:Int, co
     }
 
     /**
+    *   know if a shot at the position (x,y) sunk the ship
+    *   
+    *   @param x the x coordinate of the shot's position
+    *   @param y the y coordinate of the shot's position 
+    *   @return true if the shot at position (x,y) sunk the ship
+    */
+    def isSunkable(x:Int, y:Int):Boolean ={
+        this.isSunk == this.shoot(x,y).isSunk
+    }
+
+    /**
     *   know if the ship is sunk
     *   
     *   @return true if the ship is sunk (all of its zone have been hit), 
