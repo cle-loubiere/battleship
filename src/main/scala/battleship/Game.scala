@@ -1,5 +1,7 @@
 package battleship
 import scala.annotation.tailrec
+import java.io.File
+import java.io.PrintWriter
 
 object game extends App{
     println("\033c")
@@ -7,19 +9,46 @@ object game extends App{
     //println(new Ship(List.fill(2)(false),'e',1,1).collision(new Ship(List.fill(3)(false),'s',2,1)))
     
     val gameType = chooseGameType
-    val players = getPlayers(gameType)
-    startGame(players)
+    if (gameType != 3){
+        val players = getPlayers(gameType)
+        startGame(players)
+    }else{
+        val EvM = startGame(List(new EasyAI,new MediumAI))
+        val EvH = startGame(List(new EasyAI,new HardAI))
+        val MvH = startGame(List(new MediumAI,new HardAI))
+        val writer = new PrintWriter(new File("ai_proof.csv"))
+        writer.write("AI Name;score;AI Name 2;score2\n")
+        writer.write("AI Level Easy;"+EvM(0)+";AI Level Medium;"+EvM(1)+"\n")
+        writer.write("AI Level Easy;"+EvH(0)+";AI Level Hard;"+EvH(1)+"\n")
+        writer.write("AI Level Medium;"+MvH(0)+";AI Level Hard;"+MvH(1)+"\n")
+        writer.close
+    }
     
-
-    def startGame(playerList : List[Player], score : List[Int] = List.fill(2)(0), firstPlayerNumber : Int = 0):Unit={
+    @tailrec
+    def startGame(playerList : List[Player], score : List[Int] = List.fill(2)(0), firstPlayerNumber : Int = 0):List[Int]={
         //val playersGrid = List.fill(playerList)(new Grid(10,10))
         val playersShips = getPlayersShips(playerList,5)
+        
         val playerGrid = getPlayersGrid(playersShips)
         val playersActionList = getPlayersActionGrid(playerList)
-
+        
         val winnerNumber = playTheGame(playerList, playerGrid, playersShips, playersActionList,firstPlayerNumber)
-        //Pseudo code
-        // startGame(playerList, NOUVEAUSCORE, firstPlayerNumber+1%playerList.length)
+        if((gameType != 3)){
+            println("type y to play another game")
+            if ((scala.io.StdIn.readLine() == "y")){
+                startGame(playerList, score.updated(winnerNumber,score(winnerNumber)+1), (firstPlayerNumber+1)%playerList.length)
+            }else { 
+                println("Score = player 1 : " + score(0) + " victory - player 2 : " + score(1) + " victory")
+                score
+            }
+        }
+        else if( ((score(0)+score(1) < 100) && gameType == 3)  ){
+            startGame(playerList, score.updated(winnerNumber,score(winnerNumber)+1), (firstPlayerNumber+1)%playerList.length)
+        }else { 
+            println("Score = player 1 : " + score(0) + " victory - player 2 : " + score(1) + " victory")
+            score
+        }
+
     }
 
     @tailrec
@@ -29,24 +58,32 @@ object game extends App{
         val activePlayer = playerList(playerTurn)
         if(activePlayer.isInstanceOf[Human]){
             println("your grid : \n" + playerGridList(playerTurn).toStringPrivateInfo())
-            println("your opponent grid" + playerGridList(nonActivePlayerNumber).toStringPublicInfo())
+            println("your opponent grid : \n" + playerGridList(nonActivePlayerNumber).toStringPublicInfo())
         }
         val shootCoordinates = activePlayer.askShootCoordinate(playerActionList(playerTurn))
-        
-        val newShipList = playerShipsList.updated(playerTurn, playerShipsList(playerTurn).map(x => x.shoot(shootCoordinates._2,shootCoordinates._1)))
-        val newGridList = playerGridList.updated(nonActivePlayerNumber, playerGridList(nonActivePlayerNumber).shoot(shootCoordinates._2,shootCoordinates._1))
-        val shotResult =    if(playerShipsList(playerNumber).map(x => x.isShootable(shootCoordinates._2,shootCoordinates._1)).contains(true)) "hit"
-                            else if(playerShipsList(playerNumber).map(x => x.isSunkable(shootCoordinates._2,shootCoordinates._1)).contains(true)) "sunk"
-                            else "miss"
-        val newPlayerActionList = playerActionList.updated(playerTurn, playerActionList(playerNumber).addAction(shootCoordinates._2,shootCoordinates._1,shotResult))
 
-        if(playerShipsList(nonActivePlayerNumber).map(x => x.isSunk).contains(false)) playTheGame(playerList,newGridList,newShipList,newPlayerActionList,playerNumber+1)
-        else playerNumber
+        
+        val newShipList = playerShipsList.updated(nonActivePlayerNumber, playerShipsList(playerTurn).map(x => x.shoot(shootCoordinates._1+1,shootCoordinates._2+1)))
+        val newGridList = playerGridList.updated(nonActivePlayerNumber, playerGridList(nonActivePlayerNumber).shoot(shootCoordinates._2,shootCoordinates._1))
+        val shotResult =    if(playerShipsList(nonActivePlayerNumber).map(x => x.isShootable(shootCoordinates._1+1,shootCoordinates._2+1)).contains(true)) "hit"
+                            else if(playerShipsList(nonActivePlayerNumber).map(x => x.isSunkable(shootCoordinates._1+1,shootCoordinates._2+1)).contains(true)) "sunk"
+                            else "miss"
+        if(activePlayer.isInstanceOf[Human]){
+            println(shotResult)
+        }
+        val newPlayerActionList = playerActionList.updated(playerTurn, playerActionList(playerTurn).addAction(shootCoordinates._1,shootCoordinates._2,shotResult))
+        if(newShipList(nonActivePlayerNumber).map(x => x.isSunk).contains(false)) playTheGame(playerList,newGridList,newShipList,newPlayerActionList,playerNumber+1)
+        else {
+            if(activePlayer.isInstanceOf[Human]){
+                println("Player " + (playerTurn +1) + " win the game")
+            }
+            playerTurn
+        }
     }
 
     @tailrec
     def chooseGameType():Int={
-        println("Choose the number of your game type\n 1 - Human vs Human \n 2 - Humain vs AI \n 3 - AI vs AI")
+        println("Choose the number of your game type\n 1 - Human vs Human \n 2 - Humain vs AI \n 3 - Test AI vs AI")
         val gameType = scala.io.StdIn.readLine()
         if(gameType.length == 1 && (gameType.contains("1") || gameType.contains("2") || gameType.contains("3"))){
             println("\033c")
@@ -117,7 +154,9 @@ object game extends App{
 
     def getPlayerShips(player:Player, numberOfShip: Int):List[Ship]={
         val test = getPlayerShips(player,5,List())
-        println("ship successfully taken")
+        if(player.isInstanceOf[Human]){
+            println("ship successfully taken")
+        }
         test
     }
 
@@ -130,10 +169,14 @@ object game extends App{
             }
             val newShip = player.askShip(ConstShipSize(5-numberOfShip))
             if(shipList.map(x => x.collision(newShip)).contains(true)){
-                println("ship coordinates are in contact with another ship")
+                if(player.isInstanceOf[Human]){
+                    println("ship coordinates are in contact with another ship")
+                }
                 getPlayerShips(player, numberOfShip, shipList )
             }else if(newShip.isOutOfBounds(10,10)){
-                println("ship coordinates are out of bound limit is 10,10")
+                if(player.isInstanceOf[Human]){
+                    println("ship coordinates are out of bound limit is 10,10")
+                }
                 getPlayerShips(player, numberOfShip, shipList )
             }else{
                 getPlayerShips(player, numberOfShip-1, shipList :+ newShip )
@@ -147,7 +190,8 @@ object game extends App{
 
     @tailrec
     def getPlayersGrid(playersShipsList : List[List[Ship]], cpt : Int, gridList:List[Grid]=List()):List[Grid]={
-        if(cpt > playersShipsList.length)gridList
+        
+        if(cpt >= playersShipsList.length)gridList
         else getPlayersGrid(playersShipsList, cpt+1,( gridList:+ (new Grid(10,10).insertShipList(playersShipsList(cpt)))))
     }
 

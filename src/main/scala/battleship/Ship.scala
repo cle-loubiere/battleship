@@ -66,9 +66,9 @@ case class Ship(val hitList:List[Boolean], orientation:Char, coordinateX:Int, co
     def isShootable(x:Int, y:Int):Boolean ={
         if( this.isInCoordinate(x,y) ){
             if(direction == 'e'){
-             !hitList(posX-x)
+             !hitList(x-posX)
             }else{
-             !hitList(posY-y)
+             !hitList(y-posY)
             }
         }else false
     }

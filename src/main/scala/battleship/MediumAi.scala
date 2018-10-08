@@ -1,5 +1,6 @@
 package battleship
 import scala.util.Random
+import scala.annotation.tailrec
 
 class MediumAI extends Player{
     val Random = new Random()
@@ -8,8 +9,11 @@ class MediumAI extends Player{
     *   @param actionList a ActionList
     *   @return two int x and y
     */
-    def askShootCoordinate(actionList : ActionList):(Int,Int)={
-        (Random.nextInt(10),Random.nextInt(10))
+    @tailrec
+    final def askShootCoordinate(actionList : ActionList):(Int,Int)={
+        val shot = (Random.nextInt(10),Random.nextInt(10))
+        if(actionList.areCoordinatesAlreadyTargeted(shot._1,shot._2)) askShootCoordinate(actionList)
+        else shot
     }
 
     /**
@@ -19,10 +23,10 @@ class MediumAI extends Player{
     */
     def askShip(size:Int):Ship={
         Random.nextInt(3) match {
-            case 0 => new Ship(List.fill(size)(false),'s',Random.nextInt(10),Random.nextInt(10))
-            case 1 => new Ship(List.fill(size)(false),'w',Random.nextInt(10),Random.nextInt(10))
-            case 2 => new Ship(List.fill(size)(false),'e',Random.nextInt(10),Random.nextInt(10))
-            case 3 => new Ship(List.fill(size)(false),'n',Random.nextInt(10),Random.nextInt(10))
+            case 0 => new Ship(List.fill(size)(false),'s',Random.nextInt(9)+1,Random.nextInt(9)+1)
+            case 1 => new Ship(List.fill(size)(false),'w',Random.nextInt(9)+1,Random.nextInt(9)+1)
+            case 2 => new Ship(List.fill(size)(false),'e',Random.nextInt(9)+1,Random.nextInt(9)+1)
+            case 3 => new Ship(List.fill(size)(false),'n',Random.nextInt(9)+1,Random.nextInt(9)+1)
         }
     }
 }

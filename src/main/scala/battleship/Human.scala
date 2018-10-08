@@ -12,7 +12,7 @@ class Human extends Player{
         println("Type the coordinates of your next shot :\n Coornodinates pattern is 'letterNumber' ex : a1 ")
         val coordinate = scala.io.StdIn.readLine().toUpperCase
         if(validCoordinate(coordinate)){
-            (coordinate.slice(1,coordinate.length).toInt, coordinate.charAt(0).toInt - 64)
+            (coordinate.slice(1,coordinate.length).toInt-1, coordinate.charAt(0).toInt - 64 -1)
         }else askShootCoordinate(actionList)
     }
 
@@ -28,15 +28,18 @@ class Human extends Player{
         println("Type the orientation of your ship of size " + size  +":\n correct orientation are w, s, e and n  which stand for (w)est, (s)outh, e(ast) and n(orth) ")
         val orientation = scala.io.StdIn.readLine().toLowerCase
         if(validCoordinate(coordinate) && validOrientation(orientation)){
-            return new Ship(List.fill(size)(false),orientation.charAt(0),coordinate.slice(1,coordinate.length).toInt,coordinate.charAt(0).toInt - 64)
+            new Ship(List.fill(size)(false),orientation.charAt(0),coordinate.slice(1,coordinate.length).toInt,coordinate.charAt(0).toInt - 64)
         } else askShip(size)
     }
 
     private def validCoordinate(coordinate:String):Boolean={
-        
-        val firstPart = coordinate.charAt(0).toInt
-        true
-        //val secondPart = coordinate.slice(1,coordinate.length).toInt
+        if(coordinate.length == 0)false
+        else{
+            val firstPart = coordinate.charAt(0)
+            val secondPart = coordinate.slice(1,coordinate.length)
+            if(!isAllDigits(secondPart) || firstPart<=64 ||  firstPart>=91) false
+            else true
+        }
        /* val intRegex = """(\d+)""".r
         val isInt = intRegex(coordinate.slice(1,coordinate.length))*/
         /*(coordinate.slice(1,coordinate.length))match{
@@ -49,6 +52,10 @@ class Human extends Player{
             }
         }*/
             
+    }
+
+    private def isAllDigits(string : String):Boolean={
+        string.matches("^\\d+$")
     }
 
     private def validOrientation(orientation:String):Boolean={

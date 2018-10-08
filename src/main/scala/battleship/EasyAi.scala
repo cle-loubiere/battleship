@@ -19,10 +19,10 @@ class EasyAI extends Player{
     */
     def askShip(size:Int):Ship={
         Random.nextInt(3) match {
-            case 0 => new Ship(List.fill(size)(false),'s',Random.nextInt(10),Random.nextInt(10))
-            case 1 => new Ship(List.fill(size)(false),'w',Random.nextInt(10),Random.nextInt(10))
-            case 2 => new Ship(List.fill(size)(false),'e',Random.nextInt(10),Random.nextInt(10))
-            case 3 => new Ship(List.fill(size)(false),'n',Random.nextInt(10),Random.nextInt(10))
+            case 0 => new Ship(List.fill(size)(false),'s',Random.nextInt(9)+1,Random.nextInt(9)+1)
+            case 1 => new Ship(List.fill(size)(false),'w',Random.nextInt(9)+1,Random.nextInt(9)+1)
+            case 2 => new Ship(List.fill(size)(false),'e',Random.nextInt(9)+1,Random.nextInt(9)+1)
+            case 3 => new Ship(List.fill(size)(false),'n',Random.nextInt(9)+1,Random.nextInt(9)+1)
         }
     }
 }
