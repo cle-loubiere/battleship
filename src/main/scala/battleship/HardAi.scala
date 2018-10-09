@@ -15,12 +15,6 @@ class HardAI extends Player{
         if(actionList.actionList.length > 0){
             val lastShot = actionList.actionList.last
             if(actionList.hasLastShotHitAndNotSunk && lastShot._1 != 9 && lastShot._1 != 0 && lastShot._2 != 9 && lastShot._2 != 0)
-                /*Random.nextInt(4) match {
-                    case 0 => if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1-1,lastShot._2)){(lastShot._1-1, lastShot._2)} else randomShot(actionList)
-                    case 1 => if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1+1,lastShot._2)){(lastShot._1+1, lastShot._2)} else randomShot(actionList)
-                    case 2 => if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1,lastShot._2-1)){(lastShot._1, lastShot._2-1)} else randomShot(actionList)
-                    case 3 => if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1,lastShot._2+1)){(lastShot._1, lastShot._2+1)} else randomShot(actionList)
-                }*/
                 if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1-1,lastShot._2)){(lastShot._1-1, lastShot._2)} 
                 else if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1+1,lastShot._2)){(lastShot._1+1, lastShot._2)} 
                 else if(!actionList.areCoordinatesAlreadyTargeted(lastShot._1,lastShot._2-1)){(lastShot._1, lastShot._2-1)} 
@@ -35,6 +29,11 @@ class HardAI extends Player{
             randomShot(actionList)
         }
     }
+    /**
+    *   Choose a random coordinate not already shot
+    *   @param actionList the actionList where shot already occured
+    *   @return a new Grid
+    */
     @tailrec
     private def randomShot(actionList : ActionList):(Int,Int)={
         val shot = (Random.nextInt(10),Random.nextInt(10))

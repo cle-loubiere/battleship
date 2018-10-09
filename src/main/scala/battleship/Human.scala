@@ -32,6 +32,11 @@ class Human extends Player{
         } else askShip(size)
     }
 
+    /**
+    *   Check if the coordinates entered by the user are exact
+    *   @param coordinate the coordinates entered by the user
+    *   @return a boolean
+    */
     private def validCoordinate(coordinate:String):Boolean={
         if(coordinate.length == 0)false
         else{
@@ -39,25 +44,23 @@ class Human extends Player{
             val secondPart = coordinate.slice(1,coordinate.length)
             if(!isAllDigits(secondPart) || firstPart<=64 ||  firstPart>=91) false
             else true
-        }
-       /* val intRegex = """(\d+)""".r
-        val isInt = intRegex(coordinate.slice(1,coordinate.length))*/
-        /*(coordinate.slice(1,coordinate.length))match{
-            case (i: Int)=>{
-                if( firstPart>64 &&  firstPart<91)true
-                else false
-            }
-            case _ =>{
-                false
-            }
-        }*/
-            
+        }    
     }
 
+    /**
+    *   Check if a String is only composed of digits
+    *   @param string the String to check
+    *   @return a Boolean
+    */
     private def isAllDigits(string : String):Boolean={
         string.matches("^\\d+$")
     }
 
+    /**
+    *   Check if a string is a valid orientation (w,n,e or s)
+    *   @param orientation the string to check
+    *   @return a Boolean
+    */
     private def validOrientation(orientation:String):Boolean={
         if ((orientation.length ==1  )&& ((orientation.charAt(0) == ('w') || (orientation.charAt(0)) ==  ('e') || 
         (orientation.charAt(0)) == ('s') || (orientation.charAt(0)) == ('n')))) true

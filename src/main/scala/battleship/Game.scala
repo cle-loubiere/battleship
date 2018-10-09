@@ -5,14 +5,13 @@ import java.io.PrintWriter
 
 object game extends App{
     println("\033c")
-    val ConstShipSize = List(2,3,3,4,5)
-    //println(new Ship(List.fill(2)(false),'e',1,1).collision(new Ship(List.fill(3)(false),'s',2,1)))
+    val ConstShipSize = List(2,3,3,4,5) //List of the size of the ship
     
     val gameType = chooseGameType
-    if (gameType != 3){
+    if (gameType != 3){ // Game between a human and another player
         val players = getPlayers(gameType)
         startGame(players)
-    }else{
+    }else{ // test game between each AI
         val EvM = startGame(List(new EasyAI,new MediumAI))
         val EvH = startGame(List(new EasyAI,new HardAI))
         val MvH = startGame(List(new MediumAI,new HardAI))
@@ -24,15 +23,25 @@ object game extends App{
         writer.close
     }
     
+    /**
+    *   Start a game of battleship between two player
+    *   @param playerList the List of player participating in the game
+    *   @param score List of Int, number of time each player win against the other
+    *   @param firstPlayerNumber the number of the player beginning the game 
+    *   @return a new Grid
+    */
     @tailrec
     def startGame(playerList : List[Player], score : List[Int] = List.fill(2)(0), firstPlayerNumber : Int = 0):List[Int]={
-        //val playersGrid = List.fill(playerList)(new Grid(10,10))
-        val playersShips = getPlayersShips(playerList,5)
         
+        //Initialize players ships, grids and actionList
+        val playersShips = getPlayersShips(playerList,5)        
         val playerGrid = getPlayersGrid(playersShips)
         val playersActionList = getPlayersActionGrid(playerList)
         
+        //launch the first game
         val winnerNumber = playTheGame(playerList, playerGrid, playersShips, playersActionList,firstPlayerNumber)
+
+        //If a player is human, ask for a rematch else do game until the limit of 100 games is reached
         if((gameType != 3)){
             println("type y to play another game")
             if ((scala.io.StdIn.readLine() == "y")){
@@ -51,18 +60,27 @@ object game extends App{
 
     }
 
+    /**
+    *   The battleship game, the players alternate, shooting each other
+    *   @param playerList the List of player participating in the game
+    *   @param playerGridList the List of player's grid
+    *   @param actionList the List of players actionList
+    *   @param playerNumber the number of the active player, the one who is shooting
+    *   @return the number of the player who win the game
+    */
     @tailrec
     def playTheGame(playerList : List[Player], playerGridList : List[Grid], playerShipsList : List[List[Ship]], playerActionList : List[ActionList], playerNumber : Int):Int={
         val playerTurn = playerNumber % playerList.length
         val nonActivePlayerNumber = (playerNumber +1) % playerList.length
         val activePlayer = playerList(playerTurn)
-        if(activePlayer.isInstanceOf[Human]){
+        if(activePlayer.isInstanceOf[Human]){ //Display grid only if the player is human
             println("your grid : \n" + playerGridList(playerTurn).toStringPrivateInfo())
             println("your opponent grid : \n" + playerGridList(nonActivePlayerNumber).toStringPublicInfo())
         }
+        //Ask for the shoot coordinates
         val shootCoordinates = activePlayer.askShootCoordinate(playerActionList(playerTurn))
 
-        
+        //Update the informations
         val newShipList = playerShipsList.updated(nonActivePlayerNumber, playerShipsList(playerTurn).map(x => x.shoot(shootCoordinates._1+1,shootCoordinates._2+1)))
         val newGridList = playerGridList.updated(nonActivePlayerNumber, playerGridList(nonActivePlayerNumber).shoot(shootCoordinates._2,shootCoordinates._1))
         val shotResult =    if(playerShipsList(nonActivePlayerNumber).map(x => x.isShootable(shootCoordinates._1+1,shootCoordinates._2+1)).contains(true)) "hit"
@@ -72,6 +90,8 @@ object game extends App{
             println(shotResult)
         }
         val newPlayerActionList = playerActionList.updated(playerTurn, playerActionList(playerTurn).addAction(shootCoordinates._1,shootCoordinates._2,shotResult))
+        
+        //if a player loose return the number of the winner, else it's the other player turn to shoot
         if(newShipList(nonActivePlayerNumber).map(x => x.isSunk).contains(false)) playTheGame(playerList,newGridList,newShipList,newPlayerActionList,playerNumber+1)
         else {
             if(activePlayer.isInstanceOf[Human]){
@@ -81,6 +101,10 @@ object game extends App{
         }
     }
 
+    /**
+    *   ask the user to choose a gameType Human vs Human, Human,vs AI
+    *   @return the number of the gameType
+    */
     @tailrec
     def chooseGameType():Int={
         println("Choose the number of your game type\n 1 - Human vs Human \n 2 - Humain vs AI \n 3 - Test AI vs AI")
@@ -96,7 +120,10 @@ object game extends App{
     }
 
     
-
+    /**
+    *   ask the player the difficulty of his opponent
+    *   @return the number of the difficulty
+    */
     @tailrec
     def chooseAIDifficulty():Player={
         println("Choose the difficulty of your AI \n 1 - Easy \n 2 - Medium \n 3 - Hard")
@@ -121,6 +148,11 @@ object game extends App{
         }
     }
 
+    /**
+    *   Create a List of player depending of the gameType
+    *   @param gameType the gameTpe chosen
+    *   @return a List of player
+    */
     def getPlayers(gameType:Int):/*(Player,Player)*/List[Player]={
         gameType match{
             case 1 => {
@@ -137,6 +169,12 @@ object game extends App{
         }
     }
 
+    /**
+    *   create a List of Ship for each player
+    *   @param playerList the list of player to ask ship
+    *   @param numberOfShip the number of Ship in each list
+    *   @return a List of List of Ship
+    */
     def getPlayersShips(playerList:List[Player], numberOfShip: Int):List[List[Ship]]={
         //getPlayerShip(playerList,number,0)
         getPlayersShips(playerList,numberOfShip,0)
@@ -151,7 +189,12 @@ object game extends App{
         }
     }
 
-
+    /**
+    *   ask a player his ships positions
+    *   @param player the player to ask the ship's positions
+    *   @param numberOfShip the number of ships to ask
+    *   @return a List of ships
+    */
     def getPlayerShips(player:Player, numberOfShip: Int):List[Ship]={
         val test = getPlayerShips(player,5,List())
         if(player.isInstanceOf[Human]){
@@ -184,6 +227,11 @@ object game extends App{
         }
     }
 
+    /**
+    *   create a grid for each player containing their ships
+    *   @param playerShipsList the list of ships of each player
+    *   @return a List of grid
+    */
     def getPlayersGrid(playersShipsList : List[List[Ship]]):List[Grid]={
         getPlayersGrid(playersShipsList, 0)
     }
@@ -195,6 +243,11 @@ object game extends App{
         else getPlayersGrid(playersShipsList, cpt+1,( gridList:+ (new Grid(10,10).insertShipList(playersShipsList(cpt)))))
     }
 
+    /**
+    *   create a new ActionList for each player
+    *   @param playerList the list of players
+    *   @return a new List of ActionList
+    */
     def getPlayersActionGrid(playerList : List[Player]):List[ActionList]={
         getPlayersActionGrid(playerList, List())
     }

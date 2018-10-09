@@ -1,5 +1,8 @@
 package battleship
 
+/**
+*   An action list, it contains a List of the coordinates already shot and the result of this shot
+*/
 case class ActionList(val actionList : List[(Int,Int,String)] = List()){
     
     /**
