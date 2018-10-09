@@ -1,6 +1,6 @@
 # Battleship game
 
-Scala project made for learning functionnal programming.
+Scala project made for learning functional programming.
 The goal is to create a battleship game which can be played against an AI or against another player.
 
 # Prerequisites
@@ -23,4 +23,4 @@ Use the command "sbt run" in the source directory
 
 This game is played like a normal battleship game : 10x10 grid, 5 ships respectively of size 2,3,3,4,5
     
-For more informations about the battleship game : https://en.wikipedia.org/wiki/Battleship_(game)
+For more information about the battleship game : https://en.wikipedia.org/wiki/Battleship_(game)
